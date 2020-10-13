@@ -15,7 +15,7 @@ def get_db():
     return db
 
 def get_all_users():
-    cursor = get_db().execute("selec * from user", ())
+    cursor = get_db().execute("select * from user", ())
     results = cursor.fetchall()
     cursor.close()
     return results     
@@ -28,9 +28,16 @@ def close_connection(exception):
         db.close()
 
 @app.route('/')
-@app.route('/mesaye')
 def index():
-    return "hello,World"
+    return "Hello,World"
+
+@app.route('/aboutme')
+def aboutme():
+    return {
+        "first_name": "Mesaye",
+        "last_name": "Addisu",
+        "hobby": "Gym"
+    }
 
 
 @app.route('/users' , methods=["GET", "POST"])
