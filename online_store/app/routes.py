@@ -30,18 +30,19 @@ def update_user():
     cursor.close()
     return results
 
+
 def delete_user():
     cursor = get_db().execute("DELETE FROM user", ())
     results = cursor
     cursor.close()
     return results
 
+
 def create_user():
     cursor = get_db().execute("INSERT into user values", ())
     results = cursor
     cursor.close()
     return results
-
 
 
 @app.teardown_appcontext
@@ -55,6 +56,7 @@ def close_connection(exception):
 def index():
     return "Hello,World"
 
+
 @app.route('/about')
 def about():
     return {
@@ -64,7 +66,7 @@ def about():
     }
 
 
-@app.route('/users', methods=["GET", "POST", "PUT","DELETE"])
+@app.route('/users', methods=["GET", "POST", "PUT", "DELETE"])
 def get_users():
     # creating an output dictinory
     out = {"ok": True, "body": ""}
@@ -84,26 +86,27 @@ def get_users():
         return out
 
         return render_template(
-        "base.html", first_name=out["body"] [0].get("first_name"),
-                     last_name=out ["body"] [0].get("first_name"),
-                     hobbies=out ["body"] [0].get("first_name")
-                                        )
-        
+            "base.html", first_name=out["body"][0].get("first_name"),
+            last_name=out["body"][0].get("first_name"),
+            hobbies=out["body"][0].get("first_name")
+        )
 
     if "POST" in request.methods:
-       
         # create a new user
+        create_user()
         pass
-    
+    if "PUT" in request.method:
+        # update code goes here
+        update_user()
+        pass
+
 
 @app.route('/countdown/<int:number>')
 def countdown(number):
-    return"</br>".join([str(i) for i in range(number, 0, -1) ])
+    return"</br>".join([str(i) for i in range(number, 0, -1)])
 
 
 @app.route('/agent')
 def agent():
     user_agent = request.headers.get("User_Agent")
-    return "<p>Your user agent is %s</p>" % user_agent    
-
-
+    return "<p>Your user agent is %s</p>" % user_agent
