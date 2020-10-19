@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+
+
+ {% block content %}
+ <div class="card" style="width: 18rem;">
+    <div class="card-header">
+      Product
+    </div>
+    <ul class="list-group list-group-flush">
+        {% for product in products %}
+      <li class="list-group-item">product: Item: {{ product["Item"]}}</li>
+      <li class="list-group-item">product: Price: {{ product["Price"]}}</li>
+      <li class="list-group-item">product: IMG: {{ product["IMG"]}}</li>
+    </ul>
+  </div>
+  {% endblock %}
