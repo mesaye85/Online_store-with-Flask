@@ -2,16 +2,19 @@
 # -*- coding: utf8 -*-
 
 
-from flask import g, request
+from flask import g, request, render_template, request, session, url_for
 from app import app
+from app.forms.name import NameForm
 import sqlite3
-from flask import render_template
-from getpass import getpass
-import sys
 
+import sys
 from flask import current_app
-from bull import app, bcrypt
-from bull.models import User, db
+
+
+app.debug = True
+app.config['SECRET_KEY'] = 'o8h3v&fdr$#08hr4869032@b%'
+
+manager = Manager(app)
 
 
 DATABASE = "online_store"
@@ -126,15 +129,20 @@ def get_users():
             }
             body_list.append(temp_dict)
         out["body"] = body_list
-
-
 return render_template(
             "about_me.html", first_name=out["body"][0].get("first_name"),
             last_name=out["body"][0].get("last_name"),
-            hobbies=out["body"][0].get("hobbies")
-)
+            hobbies=out["body"][0].get("hobbies"),
+            form=form)
+if "POST" in request.method:
+        first_name = request.form.get("first_name")
+        last_name = request.form.get("last_name")
+        hobbies = request.form.get("hobbies")
+        create_user((first_name, last_name, hobbies))
+        flash("Created new user!")
+        return redirect(url_for("get_users"))
 
-
+""" add products"""
 @app.route('/products', methods=["GET", "POST"])
 def get_catalog():
     out = {"ok": True, "body": ""}
@@ -149,69 +157,45 @@ def get_catalog():
             }
             body_list.append(temp_dict)
         body_list.append(temp_dict)
-
-
-return render_template["Catalog.html", products= body_list]
-
-        if 'post' in request.method:
-            form = newProductForm()
-            if form.validate_on sumbit():
-                create_products(form.item, form.price, form.img)
-            return render_template('Catalog.html')
+return render_template["Catalog.html"]
+if 'post' in request.method:
+    form = newProductForm()
+if form.validate_on sumbit():
+    create_products(form.item, form.price, form.img)
+    return render_template('Catalog.html')
 
 
 
-    if "POST" in request.methods:
-        # create a new user
-        create_user()
-        pass
-    if "PUT" in request.method:
-        # update code goes here
-        update_user()
-        pass
+# @app.route('/countdown/<int:number>')
+# def countdown(number):
+#     return"</br>".join([str(i) for i in range(number, 0, -1)])
 
 
-
-
-
-
-@app.route('/countdown/<int:number>')
-def countdown(number):
-    return"</br>".join([str(i) for i in range(number, 0, -1)])
-
-
-@app.route('/agent')
-def agent():
-    user_agent = request.headers.get("User_Agent")
-    return "<p>Your user agent is %s</p>" % user_agent
+# @app.route('/agent')
+# def agent():
+#     user_agent = request.headers.get("User_Agent")
+#     return "<p>Your user agent is %s</p>" % user_agent
 
 
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template("404.html"), 404
 
-@app.route('/admin')
-def main():
-    with app.app_context():
-        db.metadata.create_all(db.engine)
-        if User.query.all():
-            print 'user already exists! Create another? (y/n):',
-            create = raw_input()
-            if create == 'n':
-                return
+""" admin login """
 
-        print 'Enter email address: ',
-        email = raw_input()
-        password = getpass()
-        assert password == getpass('Password (again):')
+@app.route('/admin/', methods=['post', 'get'])
+def admin():
+    message = ''
+    if request.method == 'POST':
+        username = request.form.get('username')  # access the data inside 
+        password = request.form.get('password')
 
-        user = User(
-            email=email, 
-            password=bcrypt.generate_password_hash(password))
-        db.session.add(user)
-        db.session.commit()
-        print 'User added.'
-return render_template('admin.html')
+        if username == 'root' and password == 'pass':
+            message = "Correct username and password"
+        else:
+            message = "Wrong username or password"
+
+    return render_template('admin.html', message=message)
 
 if __name__ == '__main__':
     sys.exit(main())
